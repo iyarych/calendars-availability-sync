@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { readdir } from 'node:fs/promises';
 import { ConfigService } from '@nestjs/config';
+import { async as icalAsync } from 'node-ical';
+import path from 'path';
+const parseFile = icalAsync.parseFile;
 
 @Injectable()
 export class FileProcessorService {
@@ -15,6 +18,21 @@ export class FileProcessorService {
         },
       )
     ).map((dirent) => dirent.name);
+
+    return files;
+  }
+
+  async processFiles(files: string[]) {
+    for (const filename of files) {
+      console.log(
+        await parseFile(
+          path.resolve(
+            this.configService.getOrThrow('INCOMING_FILES_PATH'),
+            filename,
+          ),
+        ),
+      );
+    }
 
     return files;
   }
